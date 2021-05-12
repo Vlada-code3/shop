@@ -45,7 +45,7 @@ class Products extends Component {
 
     deleteChair = async (id) => {
         try {
-            const response = await axios.delete(`https://shop-fatty-hugo-default-rtdb.firebaseio.com/chairs/${id}.json`)
+            await axios.delete(`https://shop-fatty-hugo-default-rtdb.firebaseio.com/chairs/${id}.json`)
         
         this.setState({chairs: this.state.chairs.filter(chair=>chair.id !==id)})
         } catch (error) {

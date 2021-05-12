@@ -13,7 +13,7 @@ const mainRoutes = [{
 {
     name: "Products",
     path: "/products",
-    exact: true,
+    exact: false,
     component: ProductsPage,
 },
 {

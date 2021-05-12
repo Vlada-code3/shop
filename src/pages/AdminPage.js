@@ -5,10 +5,17 @@ import adminRoutes from '../routes/adminRoutes';
 
 
 
-const AdminPage = ({match}) => {
+const AdminPage = ({ match, location, history}) => {
+    const onHandleClick = () => {
+        if (location.state?.from) {
+            history.push(location.state.from)
+        }
+    };
+
+
     return (
         <>
-            
+            <button type="button" onclick={onHandleClick}>Back</button>
             <h2>Admin</h2>
             <nav>
                 <ul>
