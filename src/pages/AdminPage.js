@@ -15,7 +15,7 @@ const AdminPage = ({ match, location, history}) => {
 
     return (
         <>
-            <button type="button" onclick={onHandleClick}>Back</button>
+            <button type="button" onClick={onHandleClick}>Back</button>
             <h2>Admin</h2>
             <nav>
                 <ul>

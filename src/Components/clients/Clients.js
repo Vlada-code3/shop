@@ -1,91 +1,69 @@
-import React, { Component } from 'react'
-import ClientsForm from './clientsForm/ClientsForm'
-import ClientsList from './clientsList/ClientsList'
-import { v4 as uuidv4 } from 'uuid';
-import ClientsFilter from './clientsFilter/ClientsFilter';
-import axios from 'axios';
+import React, { Component } from "react";
+import ClientsForm from "./clientsForm/ClientsForm";
+import ClientsList from "./clientsList/ClientsList";
+
+import ClientsFilter from "./clientsFilter/ClientsFilter";
+
+import { connect } from "react-redux";
+
+import { addClientOperation, deleteClientOperation, getAllClientsOperation } from "../../redux/clients/clientsOperations";
+import { errorClientSelector, getClientsSelector, loaderClientSelector } from "../../redux/clients/clientsSelectors";
 
 class Clients extends Component {
-    state = {
-        clients: [],
-        filter: ""
-    };
+  state = {
+    filter: ""
+  };
 
-    async componentDidMount() {
-        try {
-         const {data}= await axios.get(`https://shop-fatty-hugo-default-rtdb.firebaseio.com/clients.json`)
-       
-            if (data) {
-                const clients = Object.keys(data).map(key =>
-                    ({ id: key, ...data[key] }))
-                this.setState({ clients })
-       }
-         
-            console.log(data);
-        }
-        catch (error) {
-            
-        }
-    
+  async componentDidMount() {
+    this.props.getAllClientsOperation();
+  }
+
+  addClient = async client => {
+    this.props.addClientOperation(client);
+  };
+
+  onDeleteClient = async e => {
+    const { id } = e.target;
+
+    this.props.deleteClientOperation(id);
+  };
+
+  setFilter = e => {
+    const { value } = e.target;
+    this.setState({
+      filter: value
+    });
+  };
+
+  getFilteredClients = () => {
+    return this.props.clients.filter(client => client.clientName.toLowerCase().includes(this.state.filter.toLocaleLowerCase()));
+  };
+
+  render() {
+    return (
+      <>
+        {this.props.error && <h2>{this.props.error}</h2>}
+        {this.props.isLoading && <h2>...loading</h2>}
+        <ClientsForm addClient={this.addClient} />
+        <ClientsFilter filter={this.state.filter} setFilter={this.setFilter} />
+        <ClientsList clients={this.getFilteredClients()} onDeleteClient={this.onDeleteClient} />
+      </>
+    );
+  }
 }
+const mapStateToProps = state => ({
+  clients: getClientsSelector(state),
+  isLoading: loaderClientSelector(state),
+  error: errorClientSelector(state)
+});
 
-    addClient = async (client) => {
-        try {
-            const { data } = await axios.post(
-                `https://shop-fatty-hugo-default-rtdb.firebaseio.com/clients.json`,
-                client
-            );
-            this.setState((prevState) => ({
-                clients: [...prevState.clients, { ...client, id: data.name }],
-            }));
-            // console.log(data);
-        } catch (error) { }
-    };
-      
-    
-    
-    onDeleteClient = async (e) => {
-        
-        try {
-            const { id } = e.target
-        
-            const { data } = await axios.delete(
-                `https://shop-fatty-hugo-default-rtdb.firebaseio.com/clients/${id}.json`
-           
-            );
-            this.setState({
-                clients: this.state.clients.filter(client => client.id !== id)
-            });
-        } catch (error) { }
-    
-    }
+const mapDispatchToProps = {
+  getAllClientsOperation,
+  addClientOperation,
+  deleteClientOperation
+};
 
-
-
-    setFilter = (e) => {
-        const { value } = e.target
-        this.setState({
-            filter: value
-        })
-    };
-
-    getFilteredClients = () => {
-        return this.state.clients.filter(client => client.clientName.toLowerCase().includes(this.state.filter.toLocaleLowerCase()))
-}
-
-    render() {
-        return (
-
-            <>
-                
-                <ClientsForm addClient={this.addClient} />
-                <ClientsFilter filter={this.state.filter} setFilter={this.setFilter }/>
-                <ClientsList clients={this.getFilteredClients()} onDeleteClient={this.onDeleteClient}/>
-                </>
-            
-        );
-    }
-}
-
-export default Clients;
-
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Clients);

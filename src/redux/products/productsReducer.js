@@ -1,17 +1,56 @@
+import { combineReducers, createReducer } from "@reduxjs/toolkit";
+import { logOut } from "../auth/authActions";
 
-const productsReducer = (state = [], action) => {
+import {
+  addProduct,
+  deleteProduct,
+  getAllProducts,
+  setProductLoading,
+  setProductError,
+  resetProductError
+} from "./productsAction";
 
-    switch (action.type) {
+const chairReducer = createReducer([], {
+  [getAllProducts]: (_, { payload }) => payload,
+  [addProduct]: (state, { payload }) => [...state, payload],
+  [deleteProduct]: (state, { payload }) => [...state.filter(product => product.id !== payload)],
+  [logOut]: () => []
+});
 
-        case 'addProduct':
-            return [...state.products, action.payload];
+const productLoaderReducer = createReducer(false, {
+  [setProductLoading]: state => !state,
+  [logOut]: () => false
+});
+const productErrorReducer = createReducer("", {
+  [setProductError]: (_, { payload }) => payload,
+  [resetProductError]: () => "",
+  [logOut]: () => ""
+});
 
-        case 'deleteProduct':
-            return [...state.products.filter(product => product.id !== action.payload)] ;
-
-        default:
-            return state;
-    }
-};
-
+const productsReducer = combineReducers({
+  //_____nazvaniya kak budut v state "chair"
+  chair: chairReducer,
+  isProductLoading: productLoaderReducer,
+  error: productErrorReducer
+});
 export default productsReducer;
+
+// const productsReducer = (state = [], action) => {
+
+//     switch (action.type) {
+
+//         case 'addProduct':
+//             return [...state, action.payload];
+
+//         case 'deleteProduct':
+//             return [...state.filter(product => product.id !== action.payload)] ;
+
+//         case 'getProducts':
+//             return action.payload;
+
+//         default:
+//             return state;
+//     }
+// };
+
+// export default productsReducer;

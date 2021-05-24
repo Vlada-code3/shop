@@ -1,27 +1,36 @@
-import React from 'react'
-import { Route, Switch } from 'react-router-dom';
-import mainRoutes from '../../routes/mainRoutes';
+import React from "react";
+import { connect } from "react-redux";
+import { Switch } from "react-router-dom";
+import mainRoutes from "../../routes/mainRoutes";
+import PrivateRoute from "../../routes/PrivateRoute";
+import PublicRoute from "../../routes/PublicRoute";
 
 // import data from '../../data';
 // import ClientsList from '../clients/ClientsList';
 // import ProductsList from '../products/ProductsList';
 
-
-
-const Main = () => {
-    return (
-        <>
-            {/* <Products/>
+const Main = ({ isAuth }) => {
+  return (
+    <>
+      {/* <Products/>
             <h2>Clients</h2>
             <Clients/> */}
-            
-            <Switch>
-           
-                {mainRoutes.map(item => <Route path={item.path} exact={item.exact} component={item.component} key={item.path}/>)}
-            </Switch>
-        </>
 
-    );
+      <Switch>
+        {mainRoutes.map(item =>
+          item.isPrivate ? (
+            <PrivateRoute {...item} key={item.path} isAuth={isAuth} />
+          ) : (
+            <PublicRoute {...item} key={item.path} isAuth={isAuth} />
+          )
+        )}
+      </Switch>
+    </>
+  );
 };
-
-export default Main;
+const mapStateToProps = state => {
+  return {
+    isAuth: state.auth.tokens.idToken
+  };
+};
+export default connect(mapStateToProps)(Main);
